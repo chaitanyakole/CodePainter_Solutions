@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans;
+  }
+}
+
+/* Custom Grid Background & CodePainter-style ambient patterns */
+.tech-grid-pattern {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+}
+
+.light .tech-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+}
+
+/* Glassmorphism Classes with CodePainter Crimson Accents */
+.glass-panel {
+  background: rgba(15, 15, 23, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 48, 42, 0.15);
+}
+
+.light .glass-panel {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(229, 231, 235, 0.9);
+}
+
+.glass-card {
+  background: rgba(15, 15, 23, 0.65);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.light .glass-card {
+  background: #ffffff;
+  border: 1px solid rgba(229, 231, 235, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(245, 48, 42, 0.45);
+  box-shadow: 0 12px 30px -10px rgba(245, 48, 42, 0.3);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #07070b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #242436;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #F5302A;
+}
+
+.light ::-webkit-scrollbar-track {
+  background: #f1f3f5;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+}
