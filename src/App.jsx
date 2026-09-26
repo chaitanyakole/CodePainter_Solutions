@@ -19,6 +19,7 @@ export default function App() {
   const [callModalOpen, setCallModalOpen] = useState(false);
   const [prefilledRfq, setPrefilledRfq] = useState(null);
   const [introKey, setIntroKey] = useState(1);
+  const [isIntroDocked, setIsIntroDocked] = useState(false);
 
   useEffect(() => {
     if (darkMode) {
@@ -58,7 +59,11 @@ export default function App() {
     <div className={`min-h-screen ${darkMode ? 'bg-[#07070b] text-slate-100' : 'bg-slate-50 text-slate-900'} tech-grid-pattern transition-colors duration-300`}>
 
       {/* CodePainter-Style Cinematic Intro Loader */}
-      <CodePainterIntroLoader key={introKey} />
+      <CodePainterIntroLoader 
+        key={introKey}
+        onDockComplete={() => setIsIntroDocked(true)}
+        onComplete={() => setIsIntroDocked(true)}
+      />
 
       {/* Navigation */}
       <Navbar
@@ -66,7 +71,11 @@ export default function App() {
         setDarkMode={setDarkMode}
         onOpenCallModal={() => setCallModalOpen(true)}
         onOpenQuote={handleOpenQuote}
-        onReplayIntro={() => setIntroKey(prev => prev + 1)}
+        onReplayIntro={() => {
+          setIsIntroDocked(false);
+          setIntroKey(prev => prev + 1);
+        }}
+        isIntroDocked={isIntroDocked}
       />
 
       {/* Main Content Sections */}

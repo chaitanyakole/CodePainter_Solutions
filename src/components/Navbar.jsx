@@ -13,7 +13,14 @@ import {
 } from 'lucide-react';
 import { LinkedInIcon, YouTubeIcon, FacebookIcon, InstagramIcon, IndustrialRobotIcon } from './SocialIcons';
 
-export default function Navbar({ darkMode, setDarkMode, onOpenCallModal, onOpenQuote, onReplayIntro }) {
+export default function Navbar({
+  darkMode,
+  setDarkMode,
+  onOpenCallModal,
+  onOpenQuote,
+  onReplayIntro,
+  isIntroDocked = true
+}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -114,18 +121,34 @@ export default function Navbar({ darkMode, setDarkMode, onOpenCallModal, onOpenQ
           <div className="flex items-center justify-between h-20">
 
             {/* Logo with CodePainter-Style Typography & Vector Arrows */}
-            <a href="#" className="flex items-center gap-2.5 group select-none">
+            <a 
+              href="#" 
+              id="nav-brand-target"
+              className="flex items-center gap-2.5 group select-none relative"
+            >
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-rose-500 flex items-center justify-center shadow-lg shadow-brand-500/25 group-hover:scale-105 transition-transform duration-200">
                 <Cpu className="w-5 h-5 text-white" />
               </div>
-              <div className="flex items-center gap-1.5">
+              <div 
+                id="nav-brand-content" 
+                className={`flex items-center gap-1.5 transition-opacity duration-200 ${
+                  isIntroDocked 
+                    ? 'opacity-100' 
+                    : 'opacity-0 pointer-events-none'
+                }`}
+              >
                 <span className="font-extrabold text-xl sm:text-2xl tracking-tight">
-                  <span className="text-brand-500 font-mono">CODE</span>
+                  <span className="text-cyan-400 font-mono drop-shadow-[0_0_10px_rgba(0,225,255,0.5)]">CODE</span>
                   <span className={darkMode ? 'text-white' : 'text-slate-900'}>PAINTER</span>
                 </span>
                 {/* Industrial Robot Arm Icon */}
                 <IndustrialRobotIcon className="w-6 h-6 drop-shadow-[0_0_8px_rgba(0,225,255,0.6)]" />
               </div>
+
+              {/* Docking Confirmation Pulse Ripple */}
+              {isIntroDocked && (
+                <span className="absolute -inset-1.5 rounded-2xl border border-cyan-400/50 pointer-events-none animate-ping opacity-35 duration-700"></span>
+              )}
             </a>
 
             {/* CodePainter-Style Pill Navigation in Center */}
