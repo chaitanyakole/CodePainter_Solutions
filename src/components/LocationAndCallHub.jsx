@@ -16,8 +16,10 @@ export default function LocationAndCallHub({ onOpenCallModal }) {
   const [copied, setCopied] = useState(false);
 
   const fullAddress = "S No. 47/11, MIDC Road, Walhekarwadi, Chinchwad, Pune, Maharashtra - 411033";
-  const googleMapsUrl = "https://www.google.com/maps/search/?api=1&query=Walhekarwadi,+Chinchwad,+Pune+411033";
-  const directionsUrl = "https://www.google.com/maps/dir/?api=1&destination=18.635,73.785";
+  const mapSearchQuery = "Walhekarwadi, Chinchwad, Pune, Maharashtra 411033";
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapSearchQuery)}`;
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(mapSearchQuery)}`;
+  const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(mapSearchQuery)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
 
   const handleCopyAddress = () => {
     navigator.clipboard.writeText(fullAddress);
@@ -116,7 +118,7 @@ export default function LocationAndCallHub({ onOpenCallModal }) {
               <div className="relative w-full h-72 sm:h-80 rounded-xl overflow-hidden border border-slate-300 dark:border-slate-800 shadow-inner">
                 <iframe
                   title="Codepainter Solutions Location Map"
-                  src="https://maps.google.com/maps?q=18.635,73.785&hl=en&z=14&output=embed"
+                  src={mapEmbedUrl}
                   className="w-full h-full border-0 filter contrast-105"
                   allowFullScreen=""
                   loading="lazy"
@@ -125,8 +127,8 @@ export default function LocationAndCallHub({ onOpenCallModal }) {
                 
                 {/* Floating Map Overlay Badge */}
                 <div className="absolute bottom-3 left-3 bg-white/90 dark:bg-[#0a0a10]/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 flex items-center gap-2 pointer-events-none shadow-md">
-                  <span className="w-2 h-2 rounded-full bg-brand-500"></span>
-                  <span className="font-mono">Geo: 18.635° N, 73.785° E</span>
+                  <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+                  <span className="font-mono">Walhekarwadi, Chinchwad • 411033</span>
                 </div>
               </div>
             </div>
