@@ -131,7 +131,7 @@ export default function Navbar({
               </div>
               <div 
                 id="nav-brand-content" 
-                className={`flex items-center gap-1.5 transition-opacity duration-200 ${
+                className={`flex items-center gap-1.5 ${
                   isIntroDocked 
                     ? 'opacity-100' 
                     : 'opacity-0 pointer-events-none'

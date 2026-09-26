@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
   const [stageVisible, setStageVisible] = useState(true);
+  const [auxiliaryFading, setAuxiliaryFading] = useState(false);
   const [backdropFading, setBackdropFading] = useState(false);
 
   const brandRef = useRef(null);
@@ -13,15 +14,22 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
     window.scrollTo(0, 0);
 
     // Stage Choreography:
-    // 0.05s - 0.75s: Industrial Ghost-Paint letter wave reveal for "CODE" & "PAINTER"
+    // 0.05s - 0.70s: Industrial Ghost-Paint letter wave reveal for "CODE" & "PAINTER"
     // 0.80s: Laser scan sweep line sweeps across typography
     // 0.82s: 6-Axis Industrial Robot Arm docks into position with laser welding sparks
     // 1.05s: Siemens PLC RUN & factory floor telemetry active
-    // 2.10s: FLIGHT TO NAVBAR:
-    //        - Backdrop & auxiliary UI fade away, revealing live site underneath
-    //        - Hardware-accelerated Web Animation glides "CODE PAINTER" + Robot Logo into Navbar
-    // 2.95s: Flawless touchdown & docking latch pulse at Navbar target
-    // 3.05s: Intro completes and unmounts cleanly
+    // 2.10s: AUXILIARY DISSOLVE:
+    //        - Top words (PLC badge), intro description tagline, and telemetry fade out with soft optical blur
+    // 2.45s: FLIGHT TO NAVBAR:
+    //        - Backdrop fades away with 1000ms cinematic ease, revealing live site underneath
+    //        - Hardware-accelerated GPU Animation glides "CODE PAINTER" + Robot Logo into Navbar along cubic-bezier(0.25, 1, 0.35, 1)
+    // 3.37s: Flawless touchdown & docking latch pulse at Navbar target with zero-gap handoff
+    // 3.45s: Intro unmounts cleanly
+
+    // 2.10s: Gracefully dissolve auxiliary top badge, sub-tagline, and telemetry
+    const auxTimer = setTimeout(() => {
+      setAuxiliaryFading(true);
+    }, 2100);
 
     const flightTimer = setTimeout(() => {
       const target = document.getElementById('nav-brand-content');
@@ -52,17 +60,15 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
           const anim = brand.animate([
             {
               transform: 'translate3d(0, 0, 0) scale(1, 1)',
-              filter: 'drop-shadow(0 0 25px rgba(0, 225, 255, 0.75))',
               opacity: 1
             },
             {
               transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scaleX}, ${scaleY})`,
-              filter: 'drop-shadow(0 0 8px rgba(0, 225, 255, 0.4))',
               opacity: 1
             }
           ], {
-            duration: 850,
-            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+            duration: 920,
+            easing: 'cubic-bezier(0.25, 1, 0.35, 1)',
             fill: 'forwards'
           });
 
@@ -71,9 +77,10 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
           anim.onfinish = () => {
             // Flawlessly hand off to the Navbar target
             if (onDockComplete) onDockComplete();
-            brand.style.opacity = '0';
 
+            // Seamless handoff: brief 60ms overlap prevents any single-frame flicker
             setTimeout(() => {
+              brand.style.opacity = '0';
               document.body.style.overflow = '';
               setStageVisible(false);
               if (onComplete) onComplete();
@@ -87,7 +94,7 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
           if (onComplete) onComplete();
         }
       }
-    }, 2100);
+    }, 2450);
 
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
@@ -102,6 +109,7 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
 
     return () => {
       document.body.style.overflow = '';
+      clearTimeout(auxTimer);
       clearTimeout(flightTimer);
       if (animRef.current) animRef.current.cancel();
       window.removeEventListener('keydown', handleKeyDown);
@@ -155,40 +163,43 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
           left: 0;
           top: 0;
           opacity: 0;
-          will-change: transform, opacity;
+          will-change: transform, opacity, filter;
           backface-visibility: hidden;
           transform: translate3d(0, 0, 0);
-          animation: industrialWave 0.72s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: industrialWave 0.75s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
         }
 
         @keyframes industrialWave {
           0% {
             opacity: 0;
-            transform: translate3d(-40px, 60px, 0);
+            transform: translate3d(0, 24px, 0) scale(0.96);
+            filter: blur(8px);
           }
-          55% {
+          65% {
             opacity: 0.95;
-            transform: translate3d(-6px, -6px, 0);
+            transform: translate3d(0, -2px, 0) scale(1.01);
+            filter: blur(0.5px);
           }
           100% {
             opacity: 1;
-            transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0) scale(1);
+            filter: blur(0);
           }
         }
 
         @keyframes laserSweep {
           0% {
-            left: -20%;
+            transform: translate3d(-30px, 0, 0);
             opacity: 0;
           }
-          30% {
+          20% {
             opacity: 1;
           }
-          70% {
+          80% {
             opacity: 1;
           }
           100% {
-            left: 120%;
+            transform: translate3d(calc(100% + 30px), 0, 0);
             opacity: 0;
           }
         }
@@ -197,11 +208,11 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
         @keyframes robotDock {
           0% {
             opacity: 0;
-            transform: translate3d(24px, -18px, 0) rotate(14deg) scale(0.75);
+            transform: translate3d(20px, -14px, 0) rotate(12deg) scale(0.85);
           }
-          65% {
+          70% {
             opacity: 1;
-            transform: translate3d(-3px, 2px, 0) rotate(-3deg) scale(1.04);
+            transform: translate3d(-2px, 1px, 0) rotate(-2deg) scale(1.02);
           }
           100% {
             opacity: 1;
@@ -212,12 +223,32 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
         @keyframes tagSlideUp {
           0% {
             opacity: 0;
-            transform: translate3d(0, 16px, 0);
+            transform: translate3d(0, 14px, 0);
           }
           100% {
             opacity: 1;
             transform: translate3d(0, 0, 0);
           }
+        }
+
+        /* Smooth auxiliary dissolve exit before brand flight to navbar */
+        @keyframes auxFadeOut {
+          0% {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+            filter: blur(0);
+          }
+          100% {
+            opacity: 0;
+            transform: translate3d(0, -8px, 0) scale(0.98);
+            filter: blur(3px);
+            visibility: hidden;
+          }
+        }
+
+        .aux-exit {
+          animation: auxFadeOut 0.38s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+          pointer-events: none !important;
         }
 
         /* Siemens Automation Electric Teal/Cyan */
@@ -240,30 +271,32 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
           position: absolute;
           top: 0;
           bottom: 0;
+          left: 0;
           width: 8px;
           background: linear-gradient(180deg, transparent, #00e1ff, #ffffff, #00e1ff, transparent);
           box-shadow: 0 0 20px #00e1ff, 0 0 35px #0099ff;
-          animation: laserSweep 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.85s forwards;
+          animation: laserSweep 1.0s cubic-bezier(0.4, 0, 0.2, 1) 0.8s forwards;
           opacity: 0;
           pointer-events: none;
+          will-change: transform, opacity;
         }
 
         .robot-node {
           opacity: 0;
           will-change: transform, opacity;
-          animation: robotDock 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: robotDock 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
 
         .industrial-node {
           opacity: 0;
           will-change: transform, opacity;
-          animation: tagSlideUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: tagSlideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
       `}</style>
 
       {/* ── Layer 1: Backdrop & Industrial Atmosphere (Fades away to reveal site) ── */}
       <div 
-        className={`absolute inset-0 bg-[#050912] transition-opacity duration-700 ease-out pointer-events-auto ${
+        className={`absolute inset-0 bg-[#050912] transition-opacity duration-1000 ease-in-out pointer-events-auto ${
           backdropFading ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}
       >
@@ -289,10 +322,13 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
           
           {/* Top PLC Controller Status Header */}
           <div 
-            className={`mb-5 inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#0a1220] border border-cyan-500/30 text-xs font-mono industrial-node shadow-lg shadow-cyan-500/10 transition-opacity duration-400 ${
-              backdropFading ? 'opacity-0' : 'opacity-100'
+            className={`mb-5 inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#0a1220] border border-cyan-500/30 text-xs font-mono shadow-lg shadow-cyan-500/10 ${
+              auxiliaryFading ? 'aux-exit' : 'industrial-node'
             }`}
-            style={{ animationDelay: '0.05s' }}
+            style={{ 
+              animationDelay: '0.05s',
+              ...(auxiliaryFading ? { opacity: 0, visibility: 'hidden', pointerEvents: 'none' } : {})
+            }}
           >
             {/* Siemens PLC Green RUN LED */}
             <span className="flex items-center gap-1.5 text-emerald-400 font-bold tracking-wider">
@@ -315,11 +351,11 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
               transformOrigin: '0 0',
               willChange: 'transform, filter, opacity',
             }}
-            className="relative flex items-center justify-center flex-nowrap font-black text-4xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight leading-none px-3 select-none z-[10001]"
+            className="relative flex items-center justify-center flex-nowrap font-black text-3xl xs:text-4xl sm:text-7xl md:text-8xl lg:text-9xl tracking-tight leading-none select-none z-[10001]"
           >
             
             {/* Laser Scan Sweep Line */}
-            {!backdropFading && <div className="laser-beam"></div>}
+            {!auxiliaryFading && !backdropFading && <div className="laser-beam"></div>}
 
             {/* Word 1: CODE (Industrial Signal Cyan / Laser Glow) */}
             <div className="inline-flex">
@@ -356,11 +392,11 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
 
             {/* ── 6-Axis Articulated Industrial Robot Arm ── */}
             <div 
-              className="inline-flex items-center ml-2.5 sm:ml-5 robot-node"
+              className="inline-flex items-center ml-2 sm:ml-5 robot-node"
               style={{ animationDelay: '0.82s' }}
             >
               <svg 
-                className="w-10 h-10 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 drop-shadow-[0_0_22px_rgba(0,225,255,0.7)]" 
+                className="w-9 h-9 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 drop-shadow-[0_0_22px_rgba(0,225,255,0.7)]" 
                 viewBox="0 0 100 100" 
                 fill="none" 
                 xmlns="http://www.w3.org/2000/svg"
@@ -412,10 +448,13 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
 
           {/* Technical Sub-Tagline with Industrial Delimiters */}
           <div 
-            className={`mt-6 sm:mt-7 font-mono text-xs sm:text-sm md:text-base tracking-[0.24em] uppercase text-slate-200 max-w-2xl mx-auto font-semibold industrial-node transition-opacity duration-400 ${
-              backdropFading ? 'opacity-0' : 'opacity-100'
+            className={`mt-6 sm:mt-7 font-mono text-xs sm:text-sm md:text-base tracking-[0.24em] uppercase text-slate-200 max-w-2xl mx-auto font-semibold ${
+              auxiliaryFading ? 'aux-exit' : 'industrial-node'
             }`}
-            style={{ animationDelay: '1.05s' }}
+            style={{ 
+              animationDelay: '1.05s',
+              ...(auxiliaryFading ? { opacity: 0, visibility: 'hidden', pointerEvents: 'none' } : {})
+            }}
           >
             <span className="text-cyan-400 font-bold">// </span>
             Industrial Automation
@@ -427,10 +466,13 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
 
           {/* Factory Floor Telemetry Status Bar */}
           <div 
-            className={`mt-4 inline-flex items-center gap-3 px-4 py-1.5 rounded-xl bg-[#09101d] border border-slate-700/80 text-[11px] font-mono text-slate-300 industrial-node shadow-lg transition-opacity duration-400 ${
-              backdropFading ? 'opacity-0' : 'opacity-100'
+            className={`mt-4 inline-flex items-center gap-3 px-4 py-1.5 rounded-xl bg-[#09101d] border border-slate-700/80 text-[11px] font-mono text-slate-300 shadow-lg ${
+              auxiliaryFading ? 'aux-exit' : 'industrial-node'
             }`}
-            style={{ animationDelay: '1.25s' }}
+            style={{ 
+              animationDelay: '1.25s',
+              ...(auxiliaryFading ? { opacity: 0, visibility: 'hidden', pointerEvents: 'none' } : {})
+            }}
           >
             <span className="flex items-center gap-1.5 text-cyan-300">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
@@ -454,8 +496,9 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
       <button
         onClick={handleSkip}
         className={`absolute bottom-6 right-6 text-xs font-mono text-cyan-400 hover:text-white px-3.5 py-1.5 rounded-lg border border-cyan-500/40 bg-[#09101d]/90 shadow-lg shadow-cyan-500/10 transition-all pointer-events-auto ${
-          backdropFading ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          auxiliaryFading || backdropFading ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}
+        style={auxiliaryFading || backdropFading ? { opacity: 0, visibility: 'hidden', pointerEvents: 'none' } : {}}
       >
         Skip [ESC]
       </button>
