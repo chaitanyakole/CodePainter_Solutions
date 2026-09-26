@@ -7,6 +7,13 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
 
   const brandRef = useRef(null);
   const animRef = useRef(null);
+  const onDockCompleteRef = useRef(onDockComplete);
+  const onCompleteRef = useRef(onComplete);
+
+  useEffect(() => {
+    onDockCompleteRef.current = onDockComplete;
+    onCompleteRef.current = onComplete;
+  });
 
   useEffect(() => {
     // Prevent page scrolling during the intro showcase
@@ -76,22 +83,22 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
 
           anim.onfinish = () => {
             // Flawlessly hand off to the Navbar target
-            if (onDockComplete) onDockComplete();
+            if (onDockCompleteRef.current) onDockCompleteRef.current();
 
             // Seamless handoff: brief 60ms overlap prevents any single-frame flicker
             setTimeout(() => {
               brand.style.opacity = '0';
               document.body.style.overflow = '';
               setStageVisible(false);
-              if (onComplete) onComplete();
+              if (onCompleteRef.current) onCompleteRef.current();
             }, 60);
           };
         } catch {
           // Fallback if animate API is unavailable
-          if (onDockComplete) onDockComplete();
+          if (onDockCompleteRef.current) onDockCompleteRef.current();
           document.body.style.overflow = '';
           setStageVisible(false);
-          if (onComplete) onComplete();
+          if (onCompleteRef.current) onCompleteRef.current();
         }
       }
     }, 2450);
@@ -100,9 +107,9 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
       if (e.key === 'Escape') {
         document.body.style.overflow = '';
         if (animRef.current) animRef.current.cancel();
-        if (onDockComplete) onDockComplete();
+        if (onDockCompleteRef.current) onDockCompleteRef.current();
         setStageVisible(false);
-        if (onComplete) onComplete();
+        if (onCompleteRef.current) onCompleteRef.current();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -114,7 +121,7 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
       if (animRef.current) animRef.current.cancel();
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [onDockComplete, onComplete]);
+  }, []);
 
   if (!stageVisible) return null;
 
@@ -124,9 +131,9 @@ export default function CodePainterIntroLoader({ onDockComplete, onComplete }) {
   const handleSkip = () => {
     document.body.style.overflow = '';
     if (animRef.current) animRef.current.cancel();
-    if (onDockComplete) onDockComplete();
+    if (onDockCompleteRef.current) onDockCompleteRef.current();
     setStageVisible(false);
-    if (onComplete) onComplete();
+    if (onCompleteRef.current) onCompleteRef.current();
   };
 
   return (

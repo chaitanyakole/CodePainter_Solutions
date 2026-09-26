@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import StatsRibbon from './components/StatsRibbon';
@@ -20,6 +20,7 @@ export default function App() {
   const [prefilledRfq, setPrefilledRfq] = useState(null);
   const [introKey, setIntroKey] = useState(1);
   const [isIntroDocked, setIsIntroDocked] = useState(false);
+  const [introActive, setIntroActive] = useState(true);
 
   useEffect(() => {
     if (darkMode) {
@@ -29,7 +30,27 @@ export default function App() {
       document.documentElement.classList.remove('dark');
       document.documentElement.classList.add('light');
     }
-  }, [darkMode]);
+    // Ensure body scroll is never blocked by theme toggles if intro is inactive
+    if (!introActive) {
+      document.body.style.overflow = '';
+    }
+  }, [darkMode, introActive]);
+
+  const handleDockComplete = useCallback(() => {
+    setIsIntroDocked(true);
+  }, []);
+
+  const handleIntroComplete = useCallback(() => {
+    setIsIntroDocked(true);
+    setIntroActive(false);
+    document.body.style.overflow = '';
+  }, []);
+
+  const handleReplayIntro = useCallback(() => {
+    setIsIntroDocked(false);
+    setIntroActive(true);
+    setIntroKey(prev => prev + 1);
+  }, []);
 
   const handleOpenQuote = () => {
     const contactElem = document.getElementById('contact');
@@ -59,11 +80,13 @@ export default function App() {
     <div className={`min-h-screen ${darkMode ? 'bg-[#07070b] text-slate-100' : 'bg-slate-50 text-slate-900'} tech-grid-pattern transition-colors duration-300`}>
 
       {/* CodePainter-Style Cinematic Intro Loader */}
-      <CodePainterIntroLoader 
-        key={introKey}
-        onDockComplete={() => setIsIntroDocked(true)}
-        onComplete={() => setIsIntroDocked(true)}
-      />
+      {introActive && (
+        <CodePainterIntroLoader 
+          key={introKey}
+          onDockComplete={handleDockComplete}
+          onComplete={handleIntroComplete}
+        />
+      )}
 
       {/* Navigation */}
       <Navbar
@@ -71,10 +94,7 @@ export default function App() {
         setDarkMode={setDarkMode}
         onOpenCallModal={() => setCallModalOpen(true)}
         onOpenQuote={handleOpenQuote}
-        onReplayIntro={() => {
-          setIsIntroDocked(false);
-          setIntroKey(prev => prev + 1);
-        }}
+        onReplayIntro={handleReplayIntro}
         isIntroDocked={isIntroDocked}
       />
 
